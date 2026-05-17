@@ -653,7 +653,7 @@ Overall, the experiment demonstrates that parallel performance depends not only 
 
 ---
 
-# 7. Conclusions
+
 
 # 7. Conclusions
 
