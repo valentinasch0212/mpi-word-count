@@ -1,6 +1,6 @@
-# Parallel Word Counting with MPI
+# Parallel Word Counting in a Text Corpus with MPI
 
-## Team Information
+## 1. Team Information
 
 - **Course:** Computer Structure II
 - **Project:** Parallel Word Counting in a Text Corpus with MPI
@@ -16,7 +16,7 @@
 
 ---
 
-# Problem Description
+# 2. Problem Description
 
 The objective of this laboratory was to design, implement, and experimentally evaluate parallel solutions for a text-processing problem using MPI.
 
@@ -35,7 +35,7 @@ The laboratory was divided into three stages:
 
 ---
 
-# Environment and Execution Instructions
+# 3. Environment and Execution Instructions
 
 ## Environment
 
@@ -66,16 +66,15 @@ The execution environment therefore had access to 12 CPU cores.
 
 <p align="center">
   <img width="977" height="47" alt="cpus_12" src="https://github.com/user-attachments/assets/6febb8a4-a037-47fc-af54-458243640d72" />
-
 </p>
 
 The number of available CPU cores is important because it directly affects the amount of parallelism that MPI implementations can exploit during execution.
 
 ---
 
-# Execution Instructions
+## Execution Instructions
 
-## Generate Dataset
+### Generate Dataset
 
 The dataset generator creates the query file `consulta.txt` and the corpus files used during the experiments.
 
@@ -83,7 +82,7 @@ The dataset generator creates the query file `consulta.txt` and the corpus files
 docker run --rm -v "${PWD}:/app" augustosalazar/slim-mpi:2 python /app/generator.py
 ```
 
-## Run Sequential Baseline
+### Run Sequential Baseline
 
 The sequential implementation processes all files without parallelism and is used as the reference implementation for computing speedup and efficiency.
 
@@ -91,7 +90,7 @@ The sequential implementation processes all files without parallelism and is use
 docker run --rm -v "${PWD}:/app" augustosalazar/slim-mpi:2 python /app/baseline_secuencial.py
 ```
 
-## Run MPI Version 1
+### Run MPI Version 1
 
 MPI Version 1 uses static workload distribution based on a round-robin strategy.
 
@@ -99,7 +98,7 @@ MPI Version 1 uses static workload distribution based on a round-robin strategy.
 mpirun --allow-run-as-root --oversubscribe -np <number_of_processes> python mpi1.py
 ```
 
-## Run MPI Version 2
+### Run MPI Version 2
 
 MPI Version 2 uses a dynamic manager-worker scheduling strategy.
 
@@ -107,7 +106,21 @@ MPI Version 2 uses a dynamic manager-worker scheduling strategy.
 mpirun --allow-run-as-root --oversubscribe -np <number_of_processes> python mpi2.py
 ```
 
-## Run Complete Experimental Pipeline
+### Manual Execution Commands Used During the Experiments
+
+#### MPI Version 1 — p = 1
+
+```bash
+docker run --rm -v "${PWD}:/app" augustosalazar/slim-mpi:2 mpiexec --allow-run-as-root --oversubscribe -n 1 python /app/mpi1.py
+```
+
+#### MPI Version 2 — p = 1
+
+```bash
+docker run --rm -v "${PWD}:/app" augustosalazar/slim-mpi:2 mpiexec --allow-run-as-root --oversubscribe -n 1 python /app/mpi2.py
+```
+
+### Run Complete Experimental Pipeline
 
 The complete experimental procedure was automated using the provided `run_all.sh` script.
 
@@ -141,30 +154,24 @@ docker run --rm -v "${PWD}:/app" augustosalazar/slim-mpi:2 sh /app/run_all.sh
 
 ---
 
-# Experimental Plan
+# 4. Experimental Plan
 
-## Sequential Baseline
+## a. Sequential Baseline 
 
 The sequential implementation processes all files one by one without using MPI or parallelism.
 
-Its purpose is to:
-
-- validate correctness,
-- provide the reference execution time,
-- compute speedup and efficiency.
-
-The baseline implementation reads every file in the dataset and counts the occurrences of each query word.
+Its purpose is to validate correctness, provide the reference execution time and compute speedup and efficiency. The baseline implementation reads every file in the dataset and counts the occurrences of each query word.
 
 ---
 
-## MPI Version 1
+## b. MPI Version 1 
 
 MPI Version 1 uses:
 
-- broadcast communication,
-- static round-robin workload distribution,
-- local counting per process,
-- gather operations to merge partial results.
+- Broadcast communication.
+- Static round-robin workload distribution.
+- Local counting per process.
+- Gather operations to merge partial results.
 
 ### Workflow
 
@@ -176,29 +183,11 @@ MPI Version 1 uses:
 6. Partial results are gathered in rank 0.
 7. Rank 0 builds the final result.
 
-This implementation reports:
-
-- the number of assigned files,
-- the local execution time for each process.
+This implementation reports the number of assigned files and the local execution time for each process.
 
 ---
 
-## MPI Version 2
-
-MPI Version 2 was designed to reduce the imbalance observed in the first implementation. Instead of assigning all files before execution starts, workers dynamically request new tasks whenever they finish processing their current workload. Additionally, rank 0 also processes files locally while coordinating workload distribution and collecting partial results.
-
-This implementation combines:
-
-- dynamic task scheduling,
-- asynchronous communication,
-- concurrent computation on rank 0,
-- dynamic workload balancing.
-
-The implementation also computes a load imbalance ratio to evaluate workload distribution quality.
-
----
-
-## Test Procedure
+## c. The Test Procedure
 
 The experiments were executed with:
 
@@ -208,10 +197,10 @@ p ∈ {1, 2, 4, 8}
 
 For each configuration:
 
-- 3 runs were performed,
-- execution times were recorded,
-- local execution times were collected,
-- average execution times were computed.
+- 3 runs were performed.
+  Execution times were recorded.
+- Local execution times were collected.
+- Average execution times were computed.
 
 The following metrics were calculated.
 
@@ -234,28 +223,25 @@ where:
 
 ---
 
-# Experimental Plan Execution
+# 5. Experimental Plan Execution
 
 The following section presents the experimental results obtained from the sequential and MPI implementations.
 
-### Experimental execution records
+## Experimental execution records
 
 The following CSV summary contains the execution times collected during the experiments.
 
 <p align="center">
   <img width="240" height="507" alt="Captura de pantalla 2026-05-16 203345" src="https://github.com/user-attachments/assets/0fc26156-d817-4b39-b9ff-2118ac08a7a8" />
-
 </p>
 
-The CSV file stores the execution times collected for every implementation, process configuration, and experimental run. These records were later used to compute the average execution times, speedup, and efficiency values presented in this report.
+The CSV file stores the execution times collected for every implementation, process configuration, and experimental run. These records were later used to compute the average execution times, speedup, efficiency, and load imbalance ratios presented in this report.
 
 ---
 
-# Sequential Baseline Timing
+## a. Sequential Baseline Timing
 
-The sequential baseline implementation was executed using a single process because it does not use MPI.
-
-The execution time obtained for the sequential reference implementation was approximately:
+The sequential baseline implementation was executed using a single process because it does not use MPI. The execution time obtained for the sequential reference implementation was approximately:
 
 | Program | p | Avg Time (s) |
 |---|---|---|
@@ -265,28 +251,18 @@ This value was later used as the reference baseline for computing speedup and ef
 
 <p align="center">
   <img width="500" height="500" alt="Captura de pantalla 2026-05-16 202348" src="https://github.com/user-attachments/assets/83046680-b927-4c5e-bb8f-2ca4bb057e2c" />
-
 </p>
 
 The execution also produced the global top 10 most frequent words used as the correctness reference for both MPI implementations.
 
 ---
+
 ### MPI Version 1 — Single Process Execution (p = 1)
 
-Before evaluating scalability with multiple processes, MPI Version 1 was also executed using a single MPI process (`p = 1`).
+Before evaluating scalability with multiple processes, MPI Version 1 was also executed using a single MPI process (`p = 1`). This experiment allowed us to compare the MPI implementation against the sequential baseline while keeping the MPI communication structure active. The following execution logs show the three experimental runs performed for `p = 1`.
 
-This experiment allowed us to compare the MPI implementation against the sequential baseline while keeping the MPI communication structure active.
-
-The following command was executed manually to evaluate MPI Version 1 using a single process:
-
-```bash
-docker run --rm -v "${PWD}:/app" augustosalazar/slim-mpi:2 mpiexec --allow-run-as-root --oversubscribe -n 1 python /app/mpi1.py
-```
-
-The following execution logs show the three experimental runs performed for `p = 1`.
 <p align="center">
   <img width="850" height="980" alt="mpi1_p1" src="https://github.com/user-attachments/assets/b459302e-1a07-4582-89c2-7601166983d1" />
-
 </p>
 
 The execution times obtained were:
@@ -296,32 +272,34 @@ The execution times obtained were:
 18.720776 s
 15.498512 s
 ```
+
 The average execution time computed for MPI Version 1 with p = 1 was:
 
 ```text
 20.054471 s
 ```
+
 Even with a single process, the MPI implementation performed slightly better than the sequential baseline. This behavior may be influenced by execution variability, cache effects, filesystem buffering, and operating system scheduling.
 
 ---
 
-# MPI Version 1 Timing Results
+## b. MPI Version 1 Timing Results
 
 MPI Version 1 was experimentally evaluated using the static round-robin distribution strategy.
 
-| Program | p | Avg Time (s) | Speedup | Efficiency |
-|---|---|---|---|---|
-| mpi1 | 1 | 20.054471 | 1.0983 | 1.0983 |
-| mpi1 | 2 | 9.648295 | 2.2835 | 1.1417 |
-| mpi1 | 4 | 6.591308 | 3.3425 | 0.8356 |
-| mpi1 | 8 | 4.225760 | 5.2136 | 0.6517 |
+| Program | p | Avg Time (s) | Speedup | Efficiency | Avg Load Imbalance Ratio |
+|---|---|---|---|---|---|
+| mpi1 | 1 | 20.054471 | 1.0983 | 1.0983 | N/A |
+| mpi1 | 2 | 9.648295 | 2.2835 | 1.1417 | 1.0402 |
+| mpi1 | 4 | 6.591308 | 3.3425 | 0.8356 | 1.0457 |
+| mpi1 | 8 | 4.225760 | 5.2136 | 0.6517 | 1.1459 |
 
 The results show a significant reduction in execution time as the number of processes increases.
 
 For example:
 
-- using 2 processes reduced execution time from approximately 22.03 seconds to 9.65 seconds,
-- using 8 processes reduced execution time to approximately 4.23 seconds.
+- Using 2 processes reduced execution time from approximately 20.05 seconds to 9.65 seconds.
+- Using 8 processes reduced execution time to approximately 4.23 seconds.
 
 The best execution time was achieved with:
 
@@ -329,7 +307,7 @@ The best execution time was achieved with:
 p = 8
 ```
 
-obtaining approximately:
+Obtaining approximately:
 
 ```text
 4.09 seconds
@@ -337,23 +315,15 @@ obtaining approximately:
 
 <p align="center">
   <img width="500" height="500" alt="Captura de pantalla 2026-05-16 205530" src="https://github.com/user-attachments/assets/eba0f3d7-e7b5-4239-8263-5d780f38fffe" />
-
 </p>
 
 Although execution time improved considerably, the speedup was not perfectly linear. As the number of processes increased, communication overhead, synchronization costs, and workload imbalance increasingly affected scalability.
 
 ---
 
-# Load Imbalance Evidence
+## c. Load Imbalance Evidence
 
-MPI Version 1 uses static workload distribution, meaning that all files are assigned before execution starts. Even though each process receives approximately the same number of files, this does not guarantee that every process receives the same amount of work.
-
-Some files may contain:
-
-- more words,
-- larger text sections,
-- more query matches,
-- higher processing cost.
+MPI Version 1 uses static workload distribution, meaning that all files are assigned before execution starts. Even though each process receives approximately the same number of files, this does not guarantee that every process receives the same amount of work. Some files may contain more words, larger text sections, more query matches and higher processing cost.
 
 The following execution log obtained with 8 processes illustrates this behavior:
 
@@ -362,40 +332,91 @@ The following execution log obtained with 8 processes illustrates this behavior:
 [rank 2] files=375 local_time=4.090355s
 ```
 
-Even though all processes received the same number of files, their execution times were different. This means that some processes completed their workload earlier and then had to wait until the slowest process finished. The measured load imbalance ratio for MPI Version 1 was:
+Even though all processes received the same number of files, their execution times were different. This means that some processes completed their workload earlier and then had to wait until the slowest process finished.
+
+The measured load imbalance ratio for MPI Version 1 was:
 
 ```text
 Load imbalance ratio = Tmax / Tmin
+```
+where:
+
+```text
+Tmax = execution time of the slowest process
+Tmin = execution time of the fastest process
+```
+
+```text
 Load imbalance ratio = 4.090355 / 3.545944
 Load imbalance ratio = 1.1535
+```
+This value corresponds to the third experimental run using p = 8. The average load imbalance ratio computed across the three runs for p = 8 was:
+
+```text
+1.1459
+```
+
+The following table summarizes the average load imbalance ratios computed from the three experimental runs for each process configuration.
+
+
+| MPI Version 1 | Avg Load Imbalance Ratio |
+|---|---|
+| p = 1 | N/A |
+| p = 2 | 1.0402 |
+| p = 4 | 1.0457 |
+| p = 8 | 1.1459 |
+
+### MPI Version 1 — Load Imbalance Ratio Calculations
+
+#### p = 2
+
+```text
+Run 1 = 10.786037 / 10.281152 = 1.0491
+Run 2 = 8.989650 / 8.680995 = 1.0356
+Run 3 = 9.167715 / 8.850134 = 1.0359
+
+Average = (1.0491 + 1.0356 + 1.0359) / 3
+Average = 1.0402
+```
+
+#### p = 4
+
+```text
+Run 1 = 6.271337 / 6.001084 = 1.0450
+Run 2 = 6.106807 / 5.840432 = 1.0456
+Run 3 = 7.393910 / 7.064528 = 1.0466
+
+Average = (1.0450 + 1.0456 + 1.0466) / 3
+Average = 1.0457
+```
+
+#### p = 8
+
+```text
+Run 1 = 4.226792 / 3.734578 = 1.1318
+Run 2 = 4.357584 / 3.781416 = 1.1524
+Run 3 = 4.090355 / 3.545944 = 1.1535
+
+Average = (1.1318 + 1.1524 + 1.1535) / 3
+Average = 1.1459
 ```
 
 A ratio noticeably larger than 1 indicates that the workload distribution was not perfectly balanced. In parallel computing, this situation is known as load imbalance.
 
-When load imbalance occurs:
-
-- some processes stop performing useful work earlier,
-- computational resources become underutilized,
-- total execution time becomes limited by the slowest process.
-
-This negatively affects scalability and overall efficiency.
+When load imbalance occurs some processes stop performing useful work earlier, computational resources become underutilized, and total execution time becomes limited by the slowest process. This negatively affects scalability and overall efficiency.
 
 ---
+
+## d. Implementation of MPI Version 2 Correcting the Imbalance with its Timing Results
+
 ### MPI Version 2 — Single Process Execution (p = 1)
 
 MPI Version 2 was also executed using a single MPI process (`p = 1`) in order to analyze the overhead introduced by the dynamic scheduling strategy even when no real parallelism is available.
-
-The following command was executed manually to evaluate MPI Version 2 using a single process:
-
-```bash
-docker run --rm -v "${PWD}:/app" augustosalazar/slim-mpi:2 mpiexec --allow-run-as-root --oversubscribe -n 1 python /app/mpi2.py
-```
 
 The following execution logs show the three runs performed during the experiment.
 
 <p align="center">
   <img width="900" height="1000" alt="mpi2_p1" src="https://github.com/user-attachments/assets/d010b73c-828c-4c57-aaea-277b0bd9ffbf" />
-
 </p>
 
 The execution times obtained were:
@@ -406,34 +427,89 @@ The execution times obtained were:
 20.918884 s
 ```
 
+The average execution time computed for MPI Version 2 with p = 1 was:
+
+```text
+24.622729 s
+```
+
+This execution time was slower than both the sequential baseline and MPI Version 1 because the dynamic manager-worker strategy introduced additional communication and scheduling overhead even when only one process was available.
+
 ---
 
-# MPI Version 2 Timing Results
+### MPI Version 2 Timing Results
 
 MPI Version 2 was evaluated using the dynamic manager-worker scheduling strategy.
 
-| Program | p | Avg Time (s) | Speedup | Efficiency |
-|---|---|---|---|---|
-| mpi2 | 1 | 24.622729 | 0.8947 | 0.8947 |
-| mpi2 | 2 | 14.476575 | 1.5219 | 0.7609 |
-| mpi2 | 4 | 14.100507 | 1.5625 | 0.3906 |
-| mpi2 | 8 | 9.458619 | 2.3292 | 0.2912 |
+| Program | p | Avg Time (s) | Speedup | Efficiency | Avg Load Imbalance Ratio |
+|---|---|---|---|---|---|
+| mpi2 | 1 | 24.622729 | 0.8947 | 0.8947 | N/A |
+| mpi2 | 2 | 14.476575 | 1.5219 | 0.7609 | 1.0000 |
+| mpi2 | 4 | 14.100507 | 1.5625 | 0.3906 | 1.0018 |
+| mpi2 | 8 | 9.458619 | 2.3292 | 0.2912 | 1.0027 |
+
+The average load imbalance ratio values were computed from the three experimental runs for each process configuration.
+
+The following table summarizes the average load imbalance ratios computed from the three experimental runs for each process configuration.
+
+| MPI Version 2 | Avg Load Imbalance Ratio |
+|---|---|
+| p = 1 | N/A |
+| p = 2 | 1.0000 |
+| p = 4 | 1.0018 |
+| p = 8 | 1.0027 |
+
+### Load Imbalance Ratio Calculations
+
+#### p = 2
+
+```text
+Run 1 = 1.0000
+Run 2 = 1.0000
+Run 3 = 1.0000
+
+Average = (1.0000 + 1.0000 + 1.0000) / 3
+Average = 1.0000
+```
+
+#### p = 4
+
+```text
+Run 1 = 1.0028
+Run 2 = 1.0020
+Run 3 = 1.0005
+
+Average = (1.0028 + 1.0020 + 1.0005) / 3
+Average = 1.0018
+```
+
+#### p = 8
+
+```text
+Run 1 = 1.0012
+Run 2 = 1.0034
+Run 3 = 1.0035
+
+Average = (1.0012 + 1.0034 + 1.0035) / 3
+Average = 1.0027
+```
 
 MPI Version 2 improved workload balance, but its execution time was worse than MPI Version 1. This occurred because the dynamic scheduling strategy introduced additional communication overhead. Workers continuously exchanged messages with rank 0 to request new tasks and send partial results, increasing synchronization and coordination costs. As the number of processes increased, the communication overhead also increased, limiting scalability.
 
 ---
 
-# Load Balance Improvement
+### Load Balance Improvement
 
 MPI Version 2 was specifically designed to reduce the imbalance observed in MPI Version 1. Instead of assigning all files statically before execution starts, workers dynamically request new tasks whenever they finish processing their current workload. Additionally, rank 0 also processes files while coordinating workload distribution and collecting partial results. This prevents one processing unit from remaining dedicated exclusively to management tasks.
 
-MPI Version 2 also uses non-blocking probing (`MPI.Iprobe`) to detect completed worker tasks without stopping rank 0 computation. This allows communication and computation to overlap during execution. The following execution log obtained with 8 processes demonstrates the improved workload balance:
+MPI Version 2 also uses non-blocking probing (`MPI.Iprobe`) to detect completed worker tasks without stopping rank 0 computation. This allows communication and computation to overlap during execution.
+
+The following execution log obtained with 8 processes demonstrates the improved workload balance:
 
 ```text
 [rank 0] local_time=9.690771s
 [rank 1] local_time=9.662283s
 [rank 2] local_time=9.656897s
-...
 ```
 
 The implementation reported:
@@ -446,7 +522,6 @@ A value extremely close to 1 indicates that the workload distribution was nearly
 
 <p align="center">
   <img width="500" height="500" alt="Captura de pantalla 2026-05-16 210055" src="https://github.com/user-attachments/assets/de4ae7fa-6abd-49ad-952f-8906d74dbc73" />
-
 </p>
 
 Compared to MPI Version 1, the imbalance ratio decreased from:
@@ -480,9 +555,9 @@ The same top 10 words were obtained across all implementations, validating the c
 
 ---
 
-# Analysis
+# 6. Analysis
 
-## Did the first MPI implementation improve execution time compared to the sequential baseline?
+## a. Did the first MPI implementation improve execution time compared to the sequential baseline?
 
 MPI Version 1 produced a significant improvement compared to the sequential baseline. The sequential implementation required approximately 22.03 seconds to process the dataset, while MPI Version 1 reduced execution time to approximately 4.23 seconds when using 8 processes.
 
@@ -490,7 +565,7 @@ This improvement occurred because the workload was distributed among multiple pr
 
 ---
 
-## Was the observed speedup linear?
+## b. Was the observed speedup linear?
 
 Although execution time improved consistently as the number of processes increased, the speedup was not perfectly linear. Ideally, doubling the number of processes would reduce execution time by half. However, real parallel systems rarely behave this way because communication, synchronization, workload coordination, and file I/O operations introduce additional overhead.
 
@@ -504,7 +579,7 @@ The improvement became progressively smaller as more processes were added. Some 
 
 ---
 
-## Is there evidence of load imbalance? How was it observed?
+## c. Is there evidence of load imbalance? How was it observed?
 
 MPI Version 1 clearly showed evidence of load imbalance. Even though each process received the same number of files, the local execution times were different:
 
@@ -513,17 +588,17 @@ rank 0 -> 3.545944s
 rank 2 -> 4.090355s
 ```
 
-This indicates that some files required more processing work than others. The imbalance ratio measured for MPI Version 1 was:
+The average load imbalance ratio for MPI Version 1 using 8 processes was:
 
 ```text
-1.1535
+1.1459
 ```
 
 This value confirms that the workload distribution was not perfectly balanced. As a consequence, some processes completed their workload earlier and remained waiting until the slowest process finished. This situation reduced computational resource utilization and negatively affected scalability.
 
 ---
 
-## Did the second implementation reduce load imbalance?
+## d. Did the second implementation reduce load imbalance?
 
 MPI Version 2 significantly reduced the imbalance observed in MPI Version 1. Workers dynamically requested new tasks whenever they finished processing their current workload, allowing faster processes to continue receiving work instead of remaining inactive. Additionally, rank 0 also processed files locally while coordinating workload distribution and collecting partial results.
 
@@ -533,65 +608,71 @@ The effectiveness of the balancing strategy can be observed in the execution log
 [rank 0] local_time=9.690771s
 [rank 1] local_time=9.662283s
 [rank 2] local_time=9.656897s
-...
 ```
 
-The execution times became almost identical across all processes.
-
-The implementation also reported a load imbalance ratio of:
+The execution times became almost identical across all processes. The implementation also reported average load imbalance ratios very close to 1:
 
 ```text
-1.0035
+p = 2 -> 1.0000
+p = 4 -> 1.0018
+p = 8 -> 1.0027
 ```
 
-A value extremely close to 1 indicates that the workload distribution was nearly perfectly balanced.
+These values indicate that the workload distribution was nearly perfectly balanced.
 
 Compared to MPI Version 1:
 
 ```text
-MPI1 imbalance ratio = 1.1535
-MPI2 imbalance ratio = 1.0035
+MPI1 average imbalance ratio (p = 8) = 1.1459
+MPI2 average imbalance ratio (p = 8) ≈ 1.0027
 ```
 
 This demonstrates that MPI Version 2 successfully reduced the imbalance problem.
 
 ---
 
-## Did the improved distribution strategy produce a real performance improvement?
+## e. Did the improved distribution strategy produce a real performance improvement?
 
-Although MPI Version 2 greatly improved workload balance, it did not achieve better execution times than MPI Version 1. MPI Version 1 achieved approximately 4.23 seconds using 8 processes, while MPI Version 2 required approximately 9.46 seconds under the same configuration. The main reason is that dynamic scheduling introduced significantly more communication overhead. Workers continuously exchanged messages with rank 0 to request new files and send partial results, increasing synchronization and coordination costs. As a consequence, the overhead introduced by dynamic scheduling became larger than the performance gains obtained from improved balancing.
+Although MPI Version 2 greatly improved workload balance, it did not achieve better execution times than MPI Version 1. MPI Version 1 achieved approximately 4.23 seconds using 8 processes, while MPI Version 2 required approximately 9.46 seconds under the same configuration.
+
+The main reason is that dynamic scheduling introduced significantly more communication overhead. Workers continuously exchanged messages with rank 0 to request new files and send partial results, increasing synchronization and coordination costs. As a consequence, the overhead introduced by dynamic scheduling became larger than the performance gains obtained from improved balancing.
 
 This demonstrates that improving workload balance does not necessarily guarantee better overall performance if the balancing strategy introduces excessive communication overhead.
 
 ---
 
-## What limitations affected the experiment?
+## f. What limitations affected your experiment?
 
-Several factors affected the performance and scalability of the experiments. MPI communication overhead became increasingly important as the number of processes increased. Processes constantly exchanged messages and synchronized execution states, increasing execution cost.
+Several factors affected the performance and scalability of the experiments. MPI communication overhead became increasingly important as the number of processes increased. Processes constantly exchanged messages and synchronized execution states, increasing execution cost. File I/O operations also limited performance because all processes repeatedly accessed files from disk.
 
-File I/O operations also limited performance because all processes repeatedly accessed files from disk. Another important limitation was workload heterogeneity. Some files required more computational work than others, producing imbalance in MPI Version 1. Finally, in MPI Version 2, the manager-worker strategy generated a high communication frequency between processes. Although this improved workload balance, the additional coordination cost negatively affected total execution time.
+Another important limitation was workload heterogeneity. Some files required more computational work than others, producing imbalance in MPI Version 1.
+
+Finally, in MPI Version 2, the manager-worker strategy generated a high communication frequency between processes. Although this improved workload balance, the additional coordination cost negatively affected total execution time.
 
 Overall, the experiment demonstrates that parallel performance depends not only on increasing the number of processes, but also on designing efficient workload distribution strategies while minimizing communication overhead.
 
 ---
 
-# Conclusions
+# 7. Conclusions
 
-The experimental results demonstrated that both MPI implementations successfully improved execution time compared to the sequential baseline. MPI Version 1 achieved the best overall performance, reducing execution time from approximately 22.03 seconds to approximately 4.23 seconds using 8 processes. However, MPI Version 1 also showed evidence of load imbalance. Even though all processes received the same number of files, some processes required more execution time than others because certain files contained more computational work.
+# 7. Conclusions
 
-The measured imbalance ratio for MPI Version 1 was:
-
-```text
-1.1535
-```
-
-MPI Version 2 was specifically designed to correct this imbalance problem using a dynamic manager-worker strategy. Workers dynamically requested new tasks whenever they completed their current workload, producing a much more balanced workload distribution. The execution logs and the measured load imbalance ratio demonstrated that MPI Version 2 achieved an almost perfectly balanced workload:
+The experimental results demonstrated that both MPI implementations improved execution time compared to the sequential baseline. MPI Version 1 achieved the best overall performance, reducing execution time from approximately 22.03 seconds in the sequential implementation to approximately 4.23 seconds using 8 MPI processes. The most important problem observed in MPI Version 1 was load imbalance. Even though all processes received approximately the same number of files, some processes required more execution time because certain files contained more computational work than others. The average load imbalance ratio measured for MPI Version 1 using 8 processes was:
 
 ```text
-MPI2 imbalance ratio = 1.0035
+1.1459
 ```
 
-Despite this improvement, MPI Version 2 did not achieve better overall performance than MPI Version 1. The additional communication and synchronization overhead introduced by the dynamic scheduling strategy outweighed the benefits obtained from improved balancing. Based on the experimental evidence, the static workload distribution used in MPI Version 1 was more efficient for this particular problem and dataset, even though it produced some imbalance.
+MPI Version 2 was specifically designed to reduce this imbalance problem using a dynamic manager-worker scheduling strategy. Workers dynamically requested new tasks whenever they completed their current workload, producing a much more balanced workload distribution.
 
-Overall, the experiments illustrate one of the main challenges in parallel computing: finding an effective tradeoff between workload balance and communication overhead in order to maximize scalability and performance.
+The measured average load imbalance ratios for MPI Version 2 were:
 
+```text
+p = 2 -> 1.0000
+p = 4 -> 1.0018
+p = 8 -> 1.0027
+```
+
+These results demonstrate that MPI Version 2 successfully reduced the imbalance observed in MPI Version 1 and achieved an almost perfectly balanced workload distribution. However, despite improving load balance, MPI Version 2 did not achieve better overall performance than MPI Version 1. The additional communication and synchronization overhead introduced by the dynamic scheduling strategy outweighed the benefits obtained from improved balancing.
+
+Based on the experimental evidence, MPI Version 1 provided the best tradeoff between execution time and communication overhead for this particular problem and dataset, while MPI Version 2 demonstrated that achieving better workload balance does not necessarily guarantee better overall performance. Overall, the experiments illustrate one of the main challenges in parallel computing: finding an effective balance between workload distribution and communication overhead in order to maximize scalability and performance.
