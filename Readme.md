@@ -37,7 +37,7 @@ The laboratory was divided into three stages:
 
 # 3. Environment and Execution Instructions
 
-## Environment
+# Environment
 
 - Execution Environment: Docker container
 - Programming Language: Python 3.13.7
@@ -71,7 +71,7 @@ The execution environment therefore had access to 12 CPU cores. The number of av
 
 ---
 
-## Execution Instructions
+# Execution Instructions
 
 ## Docker Image
 
@@ -159,7 +159,7 @@ This script:
 6. Stores execution logs.
 7. Generates a CSV summary file with the execution times.
 
-The experiments were executed with:
+The experiments were executed using:
 
 ```text
 p ∈ {1, 2, 4, 8}
@@ -209,7 +209,7 @@ This implementation reports the number of assigned files and the local execution
 
 ## c. The Test Procedure
 
-The experiments were executed with:
+The experiments were executed using:
 
 ```text
 p ∈ {1, 2, 4, 8}
@@ -368,7 +368,7 @@ where:
 Tmax = Execution time of the slowest process.
 Tavg = Average execution time across all MPI processes.
 ```
-This metric measures how much slower the slowest MPI process was compared to the average execution time of all processes. A load imbalance ratio equal to 1 indicates a perfectly balanced workload distribution where all MPI processes required approximately the same execution time. Values larger than 1 indicate that some processes required more time than others, causing certain processes to remain not active while waiting for the slowest one to finish. In static workload distribution strategies this situation commonly appears because different files may contain different computational costs even when the number of assigned files per process is the same.
+This metric measures how much slower the slowest MPI process was compared to the average execution time of all processes. A load imbalance ratio equal to 1 indicates a perfectly balanced workload distribution where all MPI processes required approximately the same execution time. Values larger than 1 indicate that some processes required more time than others, causing certain processes to remain idle while waiting for the slowest one to finish. In static workload distribution strategies this situation commonly appears because different files may contain different computational costs even when the number of assigned files per process is the same.
 
 
 
@@ -407,7 +407,7 @@ Average = (1.0663 + 1.0629 + 1.0606) / 3
 Average = 1.0633
 ```
 
-The obtained results clearly show evidence of load imbalance in MPI Version 1. Although each MPI process received the same number of files, the execution times were not identical because some files required more computational work than others. As the number of processes increased, the imbalance ratio also increased, especially for `p = 8`, where the average imbalance ratio reached approximately `1.0633`. This indicates that some processes finished earlier and remained not active while waiting for the slowest process to complete execution.
+The obtained results clearly show evidence of load imbalance in MPI Version 1. Although each MPI process received the same number of files, the execution times were not identical because some files required more computational work than others. As the number of processes increased, the imbalance ratio also increased, especially for `p = 8`, where the average imbalance ratio reached approximately `1.0633`. This indicates that some processes finished earlier and remained idle while waiting for the slowest process to complete execution.
 
 ## d. Implementation of MPI Version 2 Correcting the Imbalance with its Timing Results
 
