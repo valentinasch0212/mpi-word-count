@@ -116,8 +116,10 @@ def main():
         flush=True,
     )
 
-    # Step 6: Gather partial results at rank 0
+    # Gather local execution times
+    all_times = comm.gather(local_time, root=0)
 
+    # Step 6: Gather partial results at rank 0
     all_local = comm.gather(local_freq, root=0)
 
     # Step 7: Merge and print top-10
@@ -135,6 +137,18 @@ def main():
         print(f"\n=== MPI v1 — {size} process(es) ===")
 
         print(f"Total files : {len(all_files)}")
+
+        # Compute load imbalance ratio
+        max_time = max(all_times)
+
+        avg_time = sum(all_times) / len(all_times)
+
+        imbalance_ratio = max_time / avg_time
+
+        print(
+            f"LOAD_IMBALANCE_RATIO="
+            f"{imbalance_ratio:.4f}"
+        )
 
         # IMPORTANT:
         # run_all.sh extracts this exact pattern

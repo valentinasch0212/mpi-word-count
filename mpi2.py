@@ -315,7 +315,7 @@ def manager_worker(comm, all_files, query_words):
             f"local_time={time_per_rank[r]:.6f}s"
         )
 
-    # Compute imbalance ratio
+    # Compute load imbalance ratio
     max_time = max(time_per_rank.values())
     avg_time = (
     sum(time_per_rank.values()) /
