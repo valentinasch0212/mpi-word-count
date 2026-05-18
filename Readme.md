@@ -73,65 +73,90 @@ The execution environment therefore had access to 12 CPU cores. The number of av
 
 ## Execution Instructions
 
+## Docker Image
 
-### Generate Dataset
-The dataset generator creates the query file `consulta.txt` and the corpus files used during the experiments.
-
+Pull the MPI Docker image:
 
 ```bash
-docker run --rm -v "${PWD}:/app" augustosalazar/slim-mpi:2 python /app/generator.py
+docker pull augustosalazar/slim-mpi:2
 ```
 
-### Run Sequential Baseline
+---
+
+## Generate Dataset
+
+The dataset generator creates the query file `consulta.txt` and the corpus files used during the experiments.
+
+```bash
+docker run --rm -v "${PWD}:/app" augustosalazar/slim-mpi:2 \
+python /app/generator.py
+```
+
+---
+
+## Run Sequential Baseline
+
 The sequential implementation processes all files without parallelism and is used as the reference implementation for computing speedup and efficiency.
 
 ```bash
-docker run --rm -v "${PWD}:/app" augustosalazar/slim-mpi:2 python /app/baseline_secuencial.py
+docker run --rm -v "${PWD}:/app" augustosalazar/slim-mpi:2 \
+python /app/baseline_secuencial.py
 ```
 
-### Run MPI Version 1
+---
+
+## Run MPI Version 1
+
 MPI Version 1 uses static workload distribution based on a round-robin strategy.
 
 ```bash
-mpirun --allow-run-as-root --oversubscribe -np <number_of_processes> python mpi1.py
+docker run --rm -v "${PWD}:/app" augustosalazar/slim-mpi:2 \
+mpiexec --allow-run-as-root --oversubscribe -n <number_of_processes> \
+python /app/mpi1.py
 ```
 
-### Run MPI Version 2
+Example with 4 processes:
+
+```bash
+docker run --rm -v "${PWD}:/app" augustosalazar/slim-mpi:2 \
+mpiexec --allow-run-as-root --oversubscribe -n 4 \
+python /app/mpi1.py
+```
+
+---
+
+## Run MPI Version 2
+
 MPI Version 2 uses a dynamic manager-worker scheduling strategy.
 
 ```bash
-mpirun --allow-run-as-root --oversubscribe -np <number_of_processes> python mpi2.py
+docker run --rm -v "${PWD}:/app" augustosalazar/slim-mpi:2 \
+mpiexec --allow-run-as-root --oversubscribe -n <number_of_processes> \
+python /app/mpi2.py
 ```
 
-### Manual Execution Commands Used During the Experiments
-
-#### MPI Version 1 — p = 1
+Example with 4 processes:
 
 ```bash
-docker run --rm -v "${PWD}:/app" augustosalazar/slim-mpi:2 mpiexec --allow-run-as-root --oversubscribe -n 1 python /app/mpi1.py
+docker run --rm -v "${PWD}:/app" augustosalazar/slim-mpi:2 \
+mpiexec --allow-run-as-root --oversubscribe -n 4 \
+python /app/mpi2.py
 ```
 
-#### MPI Version 2 — p = 1
+---
 
-```bash
-docker run --rm -v "${PWD}:/app" augustosalazar/slim-mpi:2 mpiexec --allow-run-as-root --oversubscribe -n 1 python /app/mpi2.py
-```
+## Run Complete Experimental Pipeline
 
-### Run Complete Experimental Pipeline
-The complete experimental procedure was automated using the provided `run_all.sh` script. This script:
+The complete experimental procedure was automated using the provided `run_all.sh` script.
+
+This script:
 
 1. Generates the dataset.
-
 2. Executes the sequential baseline.
-
 3. Executes MPI Version 1.
-
 4. Executes MPI Version 2.
-
 5. Repeats the experiments multiple times.
-
 6. Stores execution logs.
-
 7. Generates a CSV summary file with the execution times.
 
 The experiments were executed with:
@@ -139,10 +164,12 @@ The experiments were executed with:
 ```text
 p ∈ {1, 2, 4, 8}
 ```
-For each configuration 3 runs were performed and the complete workflow can be executed with:
+
+For each configuration, 3 runs were performed.
 
 ```bash
-docker run --rm -v "${PWD}:/app" augustosalazar/slim-mpi:2 sh /app/run_all.sh
+docker run --rm -v "${PWD}:/app" augustosalazar/slim-mpi:2 \
+sh /app/run_all.sh
 ```
 
 ---
