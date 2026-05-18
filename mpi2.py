@@ -317,17 +317,19 @@ def manager_worker(comm, all_files, query_words):
 
     # Compute imbalance ratio
     max_time = max(time_per_rank.values())
+    avg_time = (
+    sum(time_per_rank.values()) /
+    len(time_per_rank)
+    )
+    if avg_time > 0:
 
-    min_time = min(time_per_rank.values())
-
-    if min_time > 0:
-
-        imbalance_ratio = max_time / min_time
+        imbalance_ratio = max_time / avg_time
 
         print(
             f"\nLoad imbalance ratio: "
             f"{imbalance_ratio:.4f}"
         )
+
 
     # This exact format is required by run_all.sh
     print(f"\nEXECUTION_TIME={total_time:.6f}")
